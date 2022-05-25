@@ -1,0 +1,11 @@
+{
+    "name": "mightymax/verkeersongevallen",
+    "description": "Kaartweergave van geregsitreerd ongevallen in Nederland",
+    "keywords": ["geo","leaflet","open data","verkeer"],
+    "homepage": "https://twitter.com/markuitheiloo",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "symfony/console": "^6.0"
+    }
+}
