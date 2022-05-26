@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mightymax/verkeersongevallen/payload-schema.json",
+  "type": "array",
+  "additionalProperties": false,
+  "properties": {
+    "zoom": { 
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 20
+    },
+    "bounds": {
+      "type": "array",
+      "additionalProperties": false,
+      "properties": {
+        "_southWest": { "$ref": "#/$defs/latlng"},
+        "_northEast": { "$ref": "#/$defs/latlng" }
+      }
+    }
+  },
+  "$defs": {
+    "coordinate": {
+      "type": "number"
+    },
+    "latlng": { 
+      "type": "array",
+      "additionalProperties": false,
+      "properties": {
+        "lat": { 
+          "$ref": "#/$defs/coordinate"
+        }, 
+        "lng": {
+          "$ref": "#/$defs/coordinate"
+        } 
+      }
+    }
+  }
+}

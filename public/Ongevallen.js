@@ -63,10 +63,10 @@ class Ongevallen
     this.map.removeLayer(this.ongevallen);
   }
 
-  makeFlagIcon(pve_code) {
+  makeFlagIconProvincie(iconUrl) {
     return L.icon({
-      iconUrl: `assets/vlaggen-per-provincie/${pve_code}.png`,
-      shadowUrl: 'assets/vlaggen-per-provincie/shadow.png',
+      iconUrl: iconUrl,
+      shadowUrl: 'assets/flag-shadow.png',
 
       iconSize:     [50, 33], // size of the icon
       shadowSize:   [50, 33], // size of the shadow
@@ -79,7 +79,7 @@ class Ongevallen
   makeFlagIconGemeente(iconUrl) {
     return L.icon({
       iconUrl: iconUrl,
-      shadowUrl: 'assets/vlaggen-per-provincie/shadow.png',
+      shadowUrl: 'assets/flag-shadow.png',
       iconSize:     [25, 16], // size of the icon
       shadowSize:   [25, 16], // size of the shadow
       shadowAnchor: [20, 10],  // the same for the shadow
@@ -91,14 +91,14 @@ class Ongevallen
   makeProvincies() {
     if (this.provincies.getLayers().length == 0) {
       this.loading()
-      fetch('./ongevallen-per-provincie.php')
+      fetch('./api?PVE', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
         .then(response => response.json())
         .then(markers => {
           let statistieken = {}
           markers.forEach(m => {
-            var marker = L.marker([m.lat,  m.lng], {icon: this.makeFlagIcon(m.PVE_CODE)});
-            statistieken[m.PVE_OMS] = `<p>Provincie <b>${m.PVE_OMS}</b>:</p><hr>${this.getStatsHtml(m)}`
-            marker.bindPopup(statistieken[m.PVE_OMS])
+            var marker = L.marker([m.lat,  m.lng], {icon: this.makeFlagIconProvincie(m.vlag)});
+            statistieken[m.naam] = `<p>Provincie <b>${m.naam}</b>:</p><hr>${this.getStatsHtml(m)}`;
+            marker.bindPopup(statistieken[m.naam])
             this.provincies.addLayer(marker)
           });
           this.provincies.addTo(this.map)
@@ -123,13 +123,12 @@ class Ongevallen
   makeGemeentes() {
     if (true || this.gemeentes.getLayers().length == 0) {
       this.loading()
-      fetch('./ongevallen-per-gemeente.php', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
-      // fetch('./ongevallen-per-gemeente.php')
+      fetch('./api?GME', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
         .then(response => response.json())
         .then(markers => {
           markers.forEach(m => {
-            if (m.flag) {
-              var marker = L.marker([m.lat, m.lng], {icon: this.makeFlagIconGemeente(m.flag)});
+            if (m.vlag) {
+              var marker = L.marker([m.lat, m.lng], {icon: this.makeFlagIconGemeente(m.vlag)});
             } else {
               var marker = L.marker([m.lat, m.lng]);
             }
@@ -167,10 +166,11 @@ class Ongevallen
     let iconOngeval = this.makeOngevalIcon(1)
     let iconOngevallen = this.makeOngevalIcon(2)
 
-    fetch('./ongevallen.php', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
+    fetch('./api/?ONG', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
     .then (response => response.json())
     .then(markers => {
       markers.forEach(m => {
+        console.log(m);
         var marker = L.marker([m.lat, m.lng], {icon: m.count == 1 ? iconOngeval : iconOngevallen});
         marker.bindPopup(this.getStatsHtml(m));
         marker.ongevallen = m.count

@@ -6,6 +6,13 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "symfony/console": "^6.0"
+        "symfony/console": "^6.0",
+        "justinrainbow/json-schema": "^5.2",
+        "symfony/http-client": "^6.0"
+    },
+    "autoload": {
+    "psr-0": {
+        "App\\":"var/lib/src"
+        }
     }
 }

@@ -1,0 +1,31 @@
+SELECT ?GME_NAAM ?gme_lat ?gme_lng ?gme_vlag ?PVE_NAAM ?pve_lat ?pve_lng ?pve_vlag
+WHERE {
+  {
+    ?gme wdt:P31 wd:Q2039348; wdt:P625 ?gme_loc; wdt:P131 ?pve; rdfs:label ?GME_NAAM .
+    ?pve wdt:P31 wd:Q134390; wdt:P41 ?pve_vlag; wdt:P625 ?pve_loc; rdfs:label ?PVE_NAAM.
+    OPTIONAL {
+      ?gme wdt:P41 ?gme_vlag .
+    }
+    bind( replace( str(?gme_loc), "^[^0-9\\.-]*([-]?[0-9\\.]+) .*$", "$1" ) as ?gme_lng )
+    bind( replace( str(?gme_loc), "^.* ([-]?[0-9\\.]+)[^0-9\\.]*$", "$1" ) as ?gme_lat )
+
+    bind( replace( str(?pve_loc), "^[^0-9\\.-]*([-]?[0-9\\.]+) .*$", "$1" ) as ?pve_lng )
+    bind( replace( str(?pve_loc), "^.* ([-]?[0-9\\.]+)[^0-9\\.]*$", "$1" ) as ?pve_lat )
+    FILTER(lang(?GME_NAAM) = 'nl')
+    FILTER(lang(?PVE_NAAM) = 'nl')
+  } UNION {
+    ?gme wdt:P31 wd:Q1852859; wdt:P625 ?gme_loc; wdt:P131 ?pve; rdfs:label ?GME_NAAM .
+    ?pve wdt:P31 wd:Q134390; wdt:P41 ?pve_vlag; wdt:P625 ?pve_loc; rdfs:label ?PVE_NAAM.
+    OPTIONAL {
+      ?gme wdt:P41 ?gme_vlag .
+    }
+    bind( replace( str(?gme_loc), "^[^0-9\\.-]*([-]?[0-9\\.]+) .*$", "$1" ) as ?gme_lng )
+    bind( replace( str(?gme_loc), "^.* ([-]?[0-9\\.]+)[^0-9\\.]*$", "$1" ) as ?gme_lat )
+
+    bind( replace( str(?pve_loc), "^[^0-9\\.-]*([-]?[0-9\\.]+) .*$", "$1" ) as ?pve_lng )
+    bind( replace( str(?pve_loc), "^.* ([-]?[0-9\\.]+)[^0-9\\.]*$", "$1" ) as ?pve_lat )
+    FILTER(lang(?GME_NAAM) = 'nl')
+    FILTER(lang(?PVE_NAAM) = 'nl')
+  }
+}
+ORDER BY ?PVE_NAAM ?GME_NAAM

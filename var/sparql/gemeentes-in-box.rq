@@ -1,0 +1,13 @@
+SELECT ?placeLabel ?location ?flag
+WHERE {
+  SERVICE wikibase:box {
+    ?place wdt:P625 ?location .
+    bd:serviceParam wikibase:cornerSouthWest "Point(5.21026611328125 51.76274043738508)"^^geo:wktLiteral .
+    bd:serviceParam wikibase:cornerNorthEast "Point(7.319641113281251 52.45433567512185 )"^^geo:wktLiteral .
+  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "nl" }
+  ?place wdt:P31 wd:Q2039348; wdt:P131/wdt:P31 wd:Q134390 .
+  OPTIONAL {
+    ?place wdt:P41 ?flag .
+  }         
+}
