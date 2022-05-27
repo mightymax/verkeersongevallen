@@ -6,9 +6,9 @@ use App\Bounds;
 class Module 
 {
 
-  private const PVE = 'province';
-  private const GME = 'gemeente';
-  private const ONG = 'ongeval';
+  private const PVE = 'PVE';
+  private const GME = 'GME';
+  private const ONG = 'ONG';
 
   protected $queryTemplateFile;
 
@@ -37,14 +37,15 @@ class Module
 
   public function srv()
   {
-    Response::srv(function() {
+    $etag = md5($this->_module == self::ONG ? $this->_bounds->etag() : $this->_module);
+    Response::srvJson(function() {
       $sql = $this->getSqlString();
       $dbh = \App\PDO::getInstance();
       $statement = $dbh->prepare($sql);
       $statement->setFetchMode(\PDO::FETCH_ASSOC);
       $statement->execute($this->_bounds->getPgOptions());
       return $statement->fetchAll();
-    }, $this->_bounds->getCacheId($this->_module));
+    }, $etag);
   }
 
   public function getSqlString(): string

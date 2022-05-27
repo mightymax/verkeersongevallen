@@ -1,6 +1,6 @@
 SELECT 
 	"PVE_NAAM" naam,
-  "PVE_VLAG" vlag,
+  pve_vlag vlag,
   lat,
   lng,
   count,
@@ -9,4 +9,4 @@ SELECT
   "UMS"
 FROM provincies
 WHERE 
-  POINT(lat, lng) <@ box(point(:sw_lat, :sw_lng), point(:ne_lat, :ne_lng)) 
+  1=1 OR POINT(lat, lng) <@ box(point(:sw_lat, :sw_lng), point(:ne_lat, :ne_lng)) 

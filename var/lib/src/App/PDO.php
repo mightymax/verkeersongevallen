@@ -3,7 +3,7 @@ namespace App;
 
 class PDO extends \PDO
 {
-  public static function getInstance()
+  public static function getInstance(): \PDO
   {
     if (!defined('APP_ROOT')) throw new \Exception("missing APP_ROOT constant");
     $config = @parse_ini_file(APP_ROOT . '/var/config.ini');

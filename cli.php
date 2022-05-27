@@ -4,6 +4,7 @@ chdir(__DIR__);
 define('APP_ROOT', realpath(__DIR__));
 require './vendor/autoload.php';
 
+use App\Command\Import\Flags;
 use Symfony\Component\Console\Application;
 use App\Command\Import\Gemeentes;
 use App\Command\Import\Ongevallen;
@@ -16,5 +17,6 @@ $application->add(new Gemeentes($dbh));
 $application->add(new Ongevallen($dbh));
 $application->add(new Puntlocaties($dbh));
 $application->add(new Orphins($dbh));
+$application->add(new Flags($dbh));
 
 $application->run();

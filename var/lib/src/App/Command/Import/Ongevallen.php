@@ -35,7 +35,7 @@ class Ongevallen extends Command
 
     $cols = fgetcsv($ongevallen);
     //load column names from table:
-    $sql = "SELECT column_name FROM information_schema.columns WHERE table_name = '".self::$tableName."'";
+    $sql = "SELECT column_name FROM information_schema.columns WHERE table_name = '".self::$tableName."' AND UPPER(column_name) = column_name";
     $statement = $this->dbh->query($sql);
     $dbCols = [];
     $err = false;
@@ -72,19 +72,18 @@ class Ongevallen extends Command
 
     $progressBar->finish();
     $output->writeln('');
-    $output->write('verwijderen niet gebruikte puntlocaties: ');
-    $sql = <<<SQL
-DELETE FROM puntlocaties WHERE "FK_VELD5" IN (
-	SELECT 
-		p."FK_VELD5" 
-	FROM puntlocaties p
-	LEFT JOIN ongevallen o ON 
-		o."FK_VELD5"=p."FK_VELD5"
-	WHERE 
-		o."FK_VELD5" IS NULL
-)
-SQL;
 
+    // less digits is faster, we do not need them ...
+    $output->write('latlng maken op basis van puntlocaties: ');
+    $sql = <<<SQL
+UPDATE ongevallen o
+SET latlng = POINT(
+  to_char(p."Y_COORD", '99.99999')::numeric,
+	to_char(p."X_COORD", '99.99999')::numeric
+)
+FROM puntlocaties p
+WHERE p."FK_VELD5" = o."FK_VELD5"
+SQL;
     $this->dbh->query($sql);
     $output->writeln('klaar');
     $output->writeln('tip: draai het commando `cli.php app:orphins` om eventueel correcties uit te voeren');

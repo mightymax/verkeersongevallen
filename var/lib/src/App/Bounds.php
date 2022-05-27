@@ -5,7 +5,7 @@ namespace App;
 use App\Bounds\Exception;
 use JsonSchema\Validator;
 
-class Bounds 
+class Bounds implements \ArrayAccess
 {
   protected $_bounds;
 
@@ -27,7 +27,7 @@ class Bounds
     ];
   }
 
-  public function getCacheId($prefix = ""): string
+  public function etag($prefix = ""): string
   {
     return md5($prefix. serialize($this->getPgOptions()));
   }
@@ -59,5 +59,27 @@ class Bounds
       if (null == $data)  throw new Exception("invalid JSON payload");
       return $data;
   }
+
+  //Array access:
+  public function offsetExists($offset): bool
+  {
+    return isset($this->_bounds[$offset]);
+  }
+
+  public function offsetGet($offset): mixed
+  {
+    return $this->_bounds[$offset];
+  }
+
+  public function offsetSet($offset, $value): void
+  {
+    throw new Exception("setting is not allowed");
+  }
+
+  public function offsetUnset($offset): void
+  {
+    throw new Exception("unsetting is not allowed");
+  }
+
 
 }

@@ -4,6 +4,10 @@
   "type": "array",
   "additionalProperties": false,
   "properties": {
+    "mode": { 
+      "type": "string",
+      "pattern": "^(PVE|GME|ONG)$"
+    },
     "zoom": { 
       "type": "integer",
       "minimum": 5,

@@ -2,11 +2,14 @@ class Ongevallen
 {
   config = {
     nodeId: 'map',
+    mode: 'PVE',
     center: L.latLng(52.25, 5.75), //Nederland
     // center: L.latLng(52.6011, 4.7019), //Heiloo
     minZoom: 8,
     maxZoom: 18,
     defaultZoom: 8,
+    gemeenteZoom: 15,
+    gemeente: null,
     // defaultZoom: 14,
   }
 
@@ -31,11 +34,39 @@ class Ongevallen
       minZoom: this.config.minZoom,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, productie <a href="https://twitter.com/markuitheiloo">@markuitheiloo</a>'
     });
-    this.map = L.map(this.config.nodeId, {center: this.config.center, zoom: this.config.defaultZoom, layers: [tiles]});
+    this.map = L.map(this.config.nodeId, {
+      center: this.config.center, 
+      zoom: this.config.defaultZoom, 
+      layers: [tiles]}
+    );
     var self = this
     this.map.on('moveend', function() {self.updateMarkers(self)})
-    this.updateMarkers(self)
-    
+    window.onhashchange = function(e) {self.locationHashChanged(self, e)};
+    //check if user requested a placename:
+    if (!this.loadGemeente()) this.updateMarkers(self)
+  }
+
+  loadGemeente()
+  {
+    if (window.location.hash.match(/gemeente=(.+)/)) {
+      let gme_naam = /gemeente=(.+)/.exec(window.location.hash)[1].toLowerCase();
+      fetch('./api/?GME=' + gme_naam)
+        .then(response => response.json())
+        .then(points => {
+          var bounds = L.latLngBounds(L.latLng(points[0][0], points[0][1]), L.latLng(points[0][0], points[0][1]));
+          points.forEach(point => bounds.extend(L.latLng(point[0], point[1])));
+          this.map.fitBounds(bounds)
+        })
+        .catch(e => alert(`plaatsnaam '${gme_naam}' niet gevonden`));
+        return true;
+    } else {
+      return false;
+    }
+  }
+
+  locationHashChanged(e, self) 
+  {
+    if ( e.oldURL != e.newURL) self.loadGemeente()
   }
 
   updateMarkers(self) {
@@ -63,40 +94,46 @@ class Ongevallen
     this.map.removeLayer(this.ongevallen);
   }
 
-  makeFlagIconProvincie(iconUrl) {
+  makeFlag(url, mode) {
+    let iconSize = [
+      50 / (mode == 'GME'?2:1), 
+      33 / (mode == 'GME'?2:1)
+    ]
+
     return L.icon({
-      iconUrl: iconUrl,
+      iconUrl: `./api/vlag.php?mode=${mode}&url=${url}`,
       shadowUrl: 'assets/flag-shadow.png',
 
-      iconSize:     [50, 33], // size of the icon
-      shadowSize:   [50, 33], // size of the shadow
+      iconSize:     iconSize,
+      shadowSize:   iconSize,
       iconAnchor:   [25, 15], // point of the icon which will correspond to marker's location
       shadowAnchor: [20, 10],  // the same for the shadow
       popupAnchor:  [0, -15] // point from which the popup should open relative to the iconAnchor
     });
   }
 
-  makeFlagIconGemeente(iconUrl) {
-    return L.icon({
-      iconUrl: iconUrl,
-      shadowUrl: 'assets/flag-shadow.png',
-      iconSize:     [25, 16], // size of the icon
-      shadowSize:   [25, 16], // size of the shadow
-      shadowAnchor: [20, 10],  // the same for the shadow
-      iconAnchor:   [25, 15], // point of the icon which will correspond to marker's location
-      popupAnchor:  [0, -15] // point from which the popup should open relative to the iconAnchor
+  async load(mode) {
+    this.loading()
+    let url=new URL(`${window.location.protocol}/${window.location.host}${window.location.pathname}/api`);
+    let payload = {
+      mode: mode,
+      bounds: this.map.getBounds(),
+      zoom: this.map.getZoom()
+    }
+    url.searchParams.append('bounds', JSON.stringify(payload))
+
+    return fetch(url).then(response => response.json())
+    .catch(e => {
+      alert('Er is iets fout gegaan bij het ophalen van de data.')
     });
   }
 
   makeProvincies() {
     if (this.provincies.getLayers().length == 0) {
-      this.loading()
-      fetch('./api?PVE', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
-        .then(response => response.json())
-        .then(markers => {
+      this.load("PVE").then(markers => {
           let statistieken = {}
           markers.forEach(m => {
-            var marker = L.marker([m.lat,  m.lng], {icon: this.makeFlagIconProvincie(m.vlag)});
+            var marker = L.marker([m.lat,  m.lng], {icon: this.makeFlag(m.vlag, 'PVE')});
             statistieken[m.naam] = `<p>Provincie <b>${m.naam}</b>:</p><hr>${this.getStatsHtml(m)}`;
             marker.bindPopup(statistieken[m.naam])
             this.provincies.addLayer(marker)
@@ -110,29 +147,22 @@ class Ongevallen
             }
           }).setStyle({fillOpacity: 0}).addTo(this.provincies))
         })
-        .catch(e => {
-          alert('Er is iets fout gegaan bij het ophalen van de data.')
-        });
     } else {
       this.provincies.addTo(this.map)
     }
-
     this.mode = 'provincies';
   }
 
   makeGemeentes() {
-    if (true || this.gemeentes.getLayers().length == 0) {
-      this.loading()
-      fetch('./api?GME', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
-        .then(response => response.json())
-        .then(markers => {
+    if (this.gemeentes.getLayers().length == 0) {
+      this.load("GME").then(markers => {
           markers.forEach(m => {
             if (m.vlag) {
-              var marker = L.marker([m.lat, m.lng], {icon: this.makeFlagIconGemeente(m.vlag)});
+              var marker = L.marker([m.lat, m.lng], {icon: this.makeFlag(m.vlag, 'GME')});
             } else {
               var marker = L.marker([m.lat, m.lng]);
             }
-            marker.bindPopup(`<p>Gemeente <b>${m.GME_NAAM}</b>:</p><hr>${this.getStatsHtml(m)}`)
+            marker.bindPopup(`<p>Gemeente <b>${m.naam}</b>:</p><hr>${this.getStatsHtml(m)}`)
             this.gemeentes.addLayer(marker)
             marker.addTo(this.map)
           });
@@ -166,11 +196,8 @@ class Ongevallen
     let iconOngeval = this.makeOngevalIcon(1)
     let iconOngevallen = this.makeOngevalIcon(2)
 
-    fetch('./api/?ONG', {method: 'POST',body: JSON.stringify({zoom: this.map.getZoom(), bounds: this.map.getBounds()})})
-    .then (response => response.json())
-    .then(markers => {
+    this.load("ONG").then(markers => {
       markers.forEach(m => {
-        console.log(m);
         var marker = L.marker([m.lat, m.lng], {icon: m.count == 1 ? iconOngeval : iconOngevallen});
         marker.bindPopup(this.getStatsHtml(m));
         marker.ongevallen = m.count
