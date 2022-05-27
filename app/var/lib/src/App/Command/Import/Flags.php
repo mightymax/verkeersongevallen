@@ -5,10 +5,8 @@ use App\Api\Flag;
 use Symfony\Component\Console\Attribute\AsCommand;
 use App\Command;
 use App\PDO;
-use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputOption;
 

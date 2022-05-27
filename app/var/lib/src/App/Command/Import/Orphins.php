@@ -25,14 +25,14 @@ class Orphins extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $p = $input->getOptions()['plaatsen'];
+        $g = $input->getOptions()['gemeentes'];
         $o = $input->getOption('ongevallen');
         $interactive = $input->getOption('interactive');
         $delete = $input->getOption('delete');
         $helper = $this->getHelper('question');
-        if (!$p && !$o) {$p = true; $o = true;}
+        if (!$g && !$o) {$g = true; $o = true;}
 
-        if ($p) {
+        if ($g) {
             $output->writeln('Plaatsnamen waarvan geen Ongevallen bekend zijn:');
             $statement = $this->plaatsen();
             if (!$statement->execute()) {
@@ -116,7 +116,7 @@ class Orphins extends Command
         $this->tableName_ongevallen = Ongevallen::$tableName;
         $this->tableName_gemeentes = Gemeentes::$tableName;
 
-        $this->addOption('plaatsen', 'p', InputOption::VALUE_NONE, 'choose "places" as your target');
+        $this->addOption('gemeentes', 'g', InputOption::VALUE_NONE, 'choose "gemeentes" as your target');
         $this->addOption('ongevallen', 'o', InputOption::VALUE_NONE, 'choose "ongevallen" as your target');
         $this->addOption('interactive', 'i', InputOption::VALUE_NONE, 'allow changes');
         $this->addOption('delete', null, InputOption::VALUE_NONE, 'delete orphins (!!)');

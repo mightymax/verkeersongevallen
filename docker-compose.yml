@@ -1,0 +1,47 @@
+version: '3'
+services:
+  web:
+    image: nginx:latest
+    container_name: web
+    restart: always
+    ports:
+      - "8080:80"
+    links:
+      - app
+    volumes:
+      - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
+      - ./app:/app
+    depends_on:
+        - app
+  app:
+    build: docker/php-fpm
+    container_name: app
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+    tty: true
+    environment:
+      DATABASE_URL: pgsql:host=db;port=5432;dbname=ongevallen;user=ongevallen;password=ongevallen
+      APP_ROOT: /app/
+  db:
+      image: postgres
+      restart: always
+      container_name: db
+      environment:
+        POSTGRES_PASSWORD: ongevallen
+        POSTGRES_USER: ongevallen
+        POSTGRES_DB: ongevallen
+      ports:
+        - "5432:5432"
+      volumes:
+        - ./docker/postgres/create-schema.sql:/docker-entrypoint-initdb.d/create.sql
+        - db_data:/var/lib/postgresql/data
+  composer:
+    image: composer
+    container_name: composer
+    command: ["composer", "install"]
+    volumes:
+      - ./app:/app
+volumes:
+  db_data:

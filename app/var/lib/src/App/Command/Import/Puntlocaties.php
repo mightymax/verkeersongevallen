@@ -53,10 +53,15 @@ class Puntlocaties extends Command
       $values[':FK_VELD5_'.$i] = $row[0];
       $values[':X_COORD_'.$i] = $latlng['lat'];
       $values[':Y_COORD_'.$i] = $latlng['lng'];
-      if (count($values)>= 1000) $this->batchCreate($placeholders, $values, $progressBar);
+      if (count($values)>= 1000) {
+        $this->batchCreate($placeholders, $values, $progressBar);
+        $progressBar->advance(count($values));
+      }
       $i++;
     }
-    if (count($values)) $this->batchCreate($placeholders, $values, $progressBar);
+    if (count($values)) {
+      $this->batchCreate($placeholders, $values, $progressBar);
+    }
 
     $progressBar->finish();
     $output->writeln('');
@@ -70,7 +75,6 @@ class Puntlocaties extends Command
       $statement->execute($values);
       $placeholders = [];
       $values = [];
-      $progressBar->advance(count($placeholders));
   }
 
   protected function configure(): void

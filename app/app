@@ -2,7 +2,7 @@
 <?php
 chdir(__DIR__);
 define('APP_ROOT', realpath(__DIR__));
-require './vendor/autoload.php';
+require APP_ROOT . '/vendor/autoload.php';
 
 use App\Command\Import\Flags;
 use Symfony\Component\Console\Application;

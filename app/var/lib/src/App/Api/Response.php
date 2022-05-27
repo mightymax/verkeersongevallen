@@ -60,7 +60,18 @@ class Response
     }
     http_response_code($responseCode);
     header('Content-type: text/json');
-    echo json_encode(['error' => ['message' => $exception->getMessage(), 'code' => $exception->getCode(), 'trace' => $exception->getTrace()]]);
+    echo json_encode([
+      'error' => [
+        'message' => $exception->getMessage(), 
+        'code' => $exception->getCode()
+      ], 
+      'exception' => [
+        'file' => $exception->getFile(),
+        'line' => $exception->getLine(),
+        'trace' => $exception->getTrace(),
+      ],
+      // 'env' => $_ENV
+    ]);
     exit;    
   }
 

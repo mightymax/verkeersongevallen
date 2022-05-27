@@ -86,7 +86,7 @@ WHERE p."FK_VELD5" = o."FK_VELD5"
 SQL;
     $this->dbh->query($sql);
     $output->writeln('klaar');
-    $output->writeln('tip: draai het commando `cli.php app:orphins` om eventueel correcties uit te voeren');
+    $output->writeln('tip: draai het commando `./app import:orphins` om eventueel correcties uit te voeren');
     fclose($ongevallen);
     return Command::SUCCESS;
   }

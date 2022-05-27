@@ -1,5 +1,6 @@
-vendor
+app/vendor
 data-rijkswaterstaat
-var/cache/*
-.DS_Store
+app/var/cache/*
+*.DS_Store
 var/config.ini
+.vscode/launch.json

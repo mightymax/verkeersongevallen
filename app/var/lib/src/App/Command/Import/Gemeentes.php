@@ -54,7 +54,7 @@ class Gemeentes extends Command
     $progressBar->finish();
     $output->writeln('');
 
-    $output->write('Tabel provincies & gemeentes_stat vullen ...');
+    $output->write('Tabel provincies & gemeentes_stats vullen ...');
     //create Provincies:
     $sql = <<<SQL
 INSERT INTO provincies
@@ -93,10 +93,10 @@ GROUP BY
 	gemeentes."PVE_NAAM" 
 SQL;
 
-    $this->dbh->query('DELETE FROM gemeentes_stat');
+    $this->dbh->query('DELETE FROM gemeentes_stats');
     $this->dbh->query($sql);
     $output->writeln('');
-    $output->writeln('Klaar, tip: draai het commando `cli.php app:orphins` om eventueel correcties uit te voeren');
+    $output->writeln('Klaar, tip: draai het commando `./app import:orphins` om eventueel correcties uit te voeren');
     return Command::SUCCESS;
   }
 

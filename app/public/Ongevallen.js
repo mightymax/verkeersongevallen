@@ -101,7 +101,7 @@ class Ongevallen
     ]
 
     return L.icon({
-      iconUrl: `./api/vlag.php?mode=${mode}&url=${url}`,
+      iconUrl: `./api?mode=${mode}&vlag=${url}`,
       shadowUrl: 'assets/flag-shadow.png',
 
       iconSize:     iconSize,
